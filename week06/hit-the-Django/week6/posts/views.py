@@ -1,5 +1,5 @@
-from django.shortcuts import render, redirect
-from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, redirect,get_object_or_404
+from django.http import HttpResponse, JsonResponse, Http404
 
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
@@ -44,13 +44,46 @@ def post_create_view(request):
             writer = request.user
         )
         return redirect('index')
-    
+# GET은 처음 생성 페이지 들어갔을 때 -> post_form.html 보여주기
+# else는 사용자가 폼을 작성하고 제출 버튼을 눌렀을 때 index 페이지 리다이렉트
 
+@login_required
 def post_update_view(request, id):
-    return render(request, 'posts/post_update.html')
 
+    # post = Post.objects.get(id=id)
+    post = get_object_or_404(Post, id=id, writer=request.user)
+
+    if request.method == 'GET':
+        context = { 'post':post }
+        return render(request, 'posts/post_form.html', context)
+    elif request.method == 'POST':
+        new_image = request.FILES.get('image')
+        content = request.POST.get('content')
+        print(new_image)
+        print(content)
+        if new_image:
+            post.image.delete()
+            post.image = new_image
+
+        post.image = new_image
+        post.content = content
+        post.save()
+        return redirect('posts:post-detail', post.id)
+
+@login_required
 def post_delete_view(request, id):
-    return render(request, 'posts/post_confirm_delete.html')
+    post = get_object_or_404(Post, id=id)
+    # post = get_object_or_404(Post, id=id, writer=request.user)
+    if request.user != post.writer:
+        raise Http404('잘못된 접근입니다.')
+    
+    if request.method == "GET":
+        context = { 'post': post }
+        return render(request, 'posts/post_confirm_delete.html',context)
+    else:
+        post.delete()
+        return redirect('index')
+    
 
 class class_view(ListView):
     model = Post

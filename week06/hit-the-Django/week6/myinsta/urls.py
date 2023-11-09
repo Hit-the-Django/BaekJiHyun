@@ -16,7 +16,7 @@ urlpatterns = [
     path('cbv/', class_view.as_view()), # as_view: 진입 메소드
 
     path('', index, name='index'),
-    path('posts/', include('posts.urls', namespace='posts')),
+    path('posts/', include('posts.urls', namespace='posts')), #앱.url로 전달
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

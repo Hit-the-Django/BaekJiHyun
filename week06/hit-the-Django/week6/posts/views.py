@@ -4,6 +4,7 @@ from django.http import HttpResponse, JsonResponse, Http404
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from .models import Post
+from .forms import PostBasedForm, PostCreateForm, PostdDetailForm
 
 def index(request):
     post_list = Post.objects.all().order_by('-created_at') # Post 모델에 있는 객체 전부 불러오기
@@ -28,6 +29,7 @@ def post_detail_view(request, id):
     post = Post.objects.get(id=id)
     context = {
         'post':post,
+        'form' : PostdDetailForm(),
     }
     return render(request, 'posts/post_detail.html', context)
 
@@ -46,6 +48,27 @@ def post_create_view(request):
         return redirect('index')
 # GET은 처음 생성 페이지 들어갔을 때 -> post_form.html 보여주기
 # else는 사용자가 폼을 작성하고 제출 버튼을 눌렀을 때 index 페이지 리다이렉트
+
+def post_created_form_view(request):
+    if request.method=="GET":
+        form = PostCreateForm()
+        context = {'form': form}
+        return render(request, 'posts/post_form2.html', context)
+    else:
+        form = PostCreateForm(request.POST, request.FILES)
+
+        if form.is_valid():
+            Post.objects.create( #image, content 데이터를 담은 Post 객체 만들어서 저장
+            image=form.cleaned_data['image'],
+            content=form.cleaned_data['content'],
+            writer=request.user
+            )
+        else:
+            return redirect('post:post-create')
+        return redirect('index')
+
+    
+        return redirect('index')
 
 @login_required
 def post_update_view(request, id):
@@ -83,6 +106,7 @@ def post_delete_view(request, id):
     else:
         post.delete()
         return redirect('index')
+    
     
 
 class class_view(ListView):

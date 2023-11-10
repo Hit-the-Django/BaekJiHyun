@@ -17,6 +17,7 @@ urlpatterns = [
 
     path('', index, name='index'),
     path('posts/', include('posts.urls', namespace='posts')), #앱.url로 전달
+    path('accounts/', include('accounts.urls', namespace='accounts')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

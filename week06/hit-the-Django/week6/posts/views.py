@@ -1,10 +1,15 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from django.http import HttpResponse, JsonResponse, Http404
-
+from rest_framework.viewsets import ModelViewSet
+from .serializers import PostModelSerializer
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
 from .models import Post
-from .forms import PostBasedForm, PostCreateForm, PostdDetailForm
+from .forms import PostBasedForm, PostCreateForm, PostDetailForm
+
+class PostModelViewSet(ModelViewSet):
+    queryset=Post.objects.all()
+    serializer_class=PostModelSerializer
 
 def index(request):
     post_list = Post.objects.all().order_by('-created_at') # Post 모델에 있는 객체 전부 불러오기
@@ -29,7 +34,7 @@ def post_detail_view(request, id):
     post = Post.objects.get(id=id)
     context = {
         'post':post,
-        'form' : PostdDetailForm(),
+        'form' : PostDetailForm(),
     }
     return render(request, 'posts/post_detail.html', context)
 

@@ -9,6 +9,7 @@ from posts.views import class_view
 
 router=routers.DefaultRouter()
 router.register('posts', PostModelViewSet)
+router.register('comments', CommentViewSet)
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -1,15 +1,20 @@
 from django.shortcuts import render, redirect,get_object_or_404
 from django.http import HttpResponse, JsonResponse, Http404
 from rest_framework.viewsets import ModelViewSet
-from .serializers import PostModelSerializer
+from rest_framework import viewsets
+from .serializers import PostModelSerializer, CommentSerializer
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
-from .models import Post
+from .models import Post, Comment
 from .forms import PostBasedForm, PostCreateForm, PostDetailForm
 
 class PostModelViewSet(ModelViewSet):
     queryset=Post.objects.all()
     serializer_class=PostModelSerializer
+
+class CommentViewSet(viewsets.ModelViewSet):
+    queryset = Comment.objects.all()
+    serializer_class = CommentSerializer
 
 def index(request):
     post_list = Post.objects.all().order_by('-created_at') # Post 모델에 있는 객체 전부 불러오기

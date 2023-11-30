@@ -1,5 +1,8 @@
 from django.urls import path
 
+from rest_framework.urlpatterns import format_suffix_patterns
+from . import views
+
 from .views import post_list_view, post_create_view, post_created_form_view
 from .views import post_delete_view, post_detail_view, post_update_view
 
@@ -13,3 +16,10 @@ urlpatterns = [
     path('<int:id>/edit', post_update_view, name='post-update'),
     path('<int:id>/delete', post_delete_view, name='post-delete'),
 ]
+
+urlpatterns=[
+    path('posts/', views.PostList.as_view()),
+    path('posts/<int:pk>/', views.PostDetail.as_view()),
+]
+
+urlpatterns = format_suffix_patterns(urlpatterns)

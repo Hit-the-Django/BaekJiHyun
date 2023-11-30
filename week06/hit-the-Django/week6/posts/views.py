@@ -2,15 +2,61 @@ from django.shortcuts import render, redirect,get_object_or_404
 from django.http import HttpResponse, JsonResponse, Http404
 from rest_framework.viewsets import ModelViewSet
 from rest_framework import viewsets
-from .serializers import PostModelSerializer, CommentSerializer
+from .serializers import *
 from django.views.generic import ListView
 from django.contrib.auth.decorators import login_required
-from .models import Post, Comment
+from .models import Post, Comment, Posts
 from .forms import PostBasedForm, PostCreateForm, PostDetailForm
+
+from rest_framework import generics
+
+# 게시글 목록
+class PostListView(generics.ListAPIView):
+    queryset=Post.objects.all()
+    serializer_class=PostListModelSerializer
+
+# 게시글 상세
+class PostRetrieveView(generics.RetrieveAPIView):
+    queryset=Post.objects.all()
+    serializer_class=PostRetrieveModelSerializer
+
+# 게시글 목록
+class PostListCreateView(generics.ListAPIView, generics.CreateAPIView):
+    queryset=Post.objects.all()
+    serializer_class=PostModelSerializer
+
+    def post(self, request, *args, **kwargs):
+        return self.create(request, *args, **kwargs)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        #self.perform_create(serializer)
+        serializer.save()
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+# 게시글 상세, 수정, 삭제
+class PostRetrieveUpdateView(generics.RetrieveAPIView, generics.UpdateAPIView, generics.DestroyAPIView):
+    queryset=Post.objects.all()
+    serializer_class=PostRetrieveSerializer
 
 class PostModelViewSet(ModelViewSet):
     queryset=Post.objects.all()
-    serializer_class=PostModelSerializer
+    serializer_class=PostListModelSerializer
+
+    #@action(detail=True, methods=['get'])
+    #def get_comment_all(self, request, pk=None):
+    #    post = self.get_object()
+    #    comment_all = post.set_comment.objects.all()
+    #    return Response()
+
+# class CommentModelViewSet(ModelViewSet):
+#     queryset=Comment.objects.all()
+#     serializer_class=CommentHyperlinkedModelSerializer
+    
+
+
 
 class CommentViewSet(viewsets.ModelViewSet):
     queryset = Comment.objects.all()

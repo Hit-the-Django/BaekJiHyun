@@ -1,8 +1,18 @@
 from django.contrib import admin
 from posts.models import Post, Comment
+from .models import Post
 
 # Register your models here.
 # admin.site.register(Post)
+
+@admin.register(Post)
+class PostModelAdmin(admin.ModelAdmin):
+    pass
+
+@admin.register(Comment)
+class CommentModelAdmin(admin.ModelAdmin):
+    pass
+
 admin.site.register(Comment)
 
 class CommentInline(admin.TabularInline):
